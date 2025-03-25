@@ -1,0 +1,11 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPathWin": "C:\\Users\\Fran\\esp\\v5.4\\esp-idf",
+    "idf.toolsPathWin": "C:\\Users\\Fran\\.espressif",
+    "idf.pythonInstallPath": "/usr/bin/python3",
+    "idf.flashType": "UART",
+    "idf.portWin": "COM5",
+    "files.associations": {
+        "stdio.h": "c"
+    }
+}
