@@ -107,19 +107,18 @@ void app_main() {
     init_wifi_ap();
     init_espnow();
 
-    // Message to send
-    char message[] = "Hello from ESP-NOW Sender!";
-    
-    // Send data
-    esp_err_t result = esp_now_send(receiver_mac, 
-        (uint8_t *)message, 
-        sizeof(message));
+    // testiranje ESPNOW konekcije
+    // char message[] = "Hello from ESP-NOW Sender!";
 
-    if (result == ESP_OK) {
-        ESP_LOGI(TAG, "Message sent successfully");
-    } else {
-        ESP_LOGE(TAG, "ESP-NOW send failed: %s", esp_err_to_name(result));
-    }
+    // esp_err_t result = esp_now_send(receiver_mac, 
+    //     (uint8_t *)message, 
+    //     sizeof(message));
+
+    // if (result == ESP_OK) {
+    //     ESP_LOGI(TAG, "Message sent successfully");
+    // } else {
+    //     ESP_LOGE(TAG, "ESP-NOW send failed: %s", esp_err_to_name(result));
+    // }
 
     start_server();
     ESP_LOGI(TAG, "ESP-NOW Sender with Web Server Ready!");
