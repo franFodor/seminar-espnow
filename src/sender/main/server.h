@@ -14,5 +14,18 @@
 
 static const uint8_t receiver_mac[] = {0x34, 0x86, 0x5D, 0xDC, 0x20, 0xD0};
 
+/*
+ * Handler funkcija za parsanje /send http zahtjeva i slanje poruke ESP-NOW protokolom
+ * 
+ * req:          poslani zahtjev
+ * 
+ * return:        esp error code
+ */
 esp_err_t get_handler(httpd_req_t *req);
-httpd_handle_t start_server();
+
+/*
+ * Funkcija za pokretanje http servera
+ * 
+ * return:      handle za server
+ */
+ httpd_handle_t start_server();

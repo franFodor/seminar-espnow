@@ -5,10 +5,10 @@ esp_err_t get_handler(httpd_req_t *req) {
     char message[64] = {0};
 
     if (httpd_req_get_url_query_str(req, query, sizeof(query)) == ESP_OK) {
-        ESP_LOGI(TAG, "Received Query: %s", query);
+        ESP_LOGI(TAG, "Dobio query: %s", query);
         if (httpd_query_key_value(query, "message", message, 
             sizeof(message)) == ESP_OK) {
-            ESP_LOGI(TAG, "Extracted Message: %s", message);
+            ESP_LOGI(TAG, "Poruka: %s", message);
 
             // slanje poruke esp now protokolom
             esp_err_t result = esp_now_send(receiver_mac, 
@@ -43,7 +43,6 @@ esp_err_t get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Start HTTP Server
 httpd_handle_t start_server() {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
