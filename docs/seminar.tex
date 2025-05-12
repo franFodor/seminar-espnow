@@ -61,7 +61,7 @@
 \chapter{Uvod}
 \label{pog:uvod}
 
-Komunikacija između uređaja je neizostavni dio današnjeg (IoT) svijeta. Jedan od standardnih pristupa bi bila komunikacija pomoću WiFi-ja, no takav način uvodi dodatnu potrošnju i latenciju u sustav. Kao rješenje za taj problem razvijen je ESP-NOW protokol koji služi za bežičnu komunikaciju između ESP32 i ESP8266 mikrokontrolera. ESP-NOW koristi već postojeći hardver za WiFi, samo što pojednostavljuje način komunikacije da bi se postigla manja potrošnja i latencija. 
+Komunikacija između uređaja je neizostavni dio današnjeg (IoT) svijeta. Jedan od standardnih pristupa bi bila komunikacija pomoću WiFi-ja, no takav način uvodi dodatnu latenciju i potrebnu infrastrukuru u sustav. Kao rješenje za taj problem razvijen je ESP-NOW protokol koji služi za bežičnu komunikaciju između ESP32 i ESP8266 mikrokontrolera. ESP-NOW koristi već postojeći hardver za WiFi.
 
 U ovom seminaru opisan je ESP-NOW protokol i prikazana je primjena istog uz web server koji služi da preko web sučelja šaljemo podatke/zahtjeve na udaljeni mikroupravljač.
 
@@ -69,13 +69,13 @@ U ovom seminaru opisan je ESP-NOW protokol i prikazana je primjena istog uz web 
 \chapter{ESP-NOW}
 \label{pog:uvod_u_espnow}
 
-ESP-NOW je P2P (engl. peer-to-peer) protokol koji omogućava jednostavnu bežičnu komunikaciju između ESP mikrokontrolera koristeći 2.4GHz pojas (isto kao i Wi-Fi). Komunikacija može biti jednostrana (engl. single-duplex) ili dvostrana (engl. full-duplex) i moguće je povezati od 2 do 20 mikrokontrolera. Paketi su limitirani na 250 bajtova.
+ESP-NOW je P2P (engl. peer-to-peer) protokol koji omogućava jednostavnu bežičnu komunikaciju između ESP mikrokontrolera koristeći 2.4GHz pojas (isto kao i Wi-Fi). Komunikacija može biti jednostrana (engl. single-duplex) ili dvostrana (engl. full-duplex) i moguće je povezati od 2 do 20 mikrokontrolera. Paketi su limitirani na 250 bajtova \cite{b1}.
 
 \section{Zašto (i zašto ne) koristiti ESP-NOW?}
 
 \subsection{Usporedba ESP-NOW protokola s WiFi protokolom}
 
-Na sljedećoj \hyperref[tab:tablica]{tablici} prikazana je usporedbe dometa i brzine WiFi i ESP-NOW protokola. Brzina je uspoređivana tako da je mjereno vrijeme da stigne poruka od 94 bajtova, a domet je mjeren tako da je jedan ESP ostao stacionaran a drugi se kretao od njega sve dok nije došlo do prekida konekcije\footnotemark{} \footnotetext{Stvarni domet u otvorenom prostoru je teoretski veći ($\sim$450 m) ako se koriste idealni uvjeti (nema nikakvih prepreka, interferencije, mikrokontroleri postavljeni visoko u zrak i sl.).}.
+Na sljedećoj \hyperref[tab:tablica]{tablici} prikazana je usporedbe dometa i brzine WiFi i ESP-NOW protokola. Brzina je uspoređivana tako da je mjereno vrijeme da stigne poruka od 94 bajtova (srednja vrijednost pet mjerenja), a domet je mjeren tako da je jedan ESP ostao stacionaran a drugi se kretao od njega sve dok nije došlo do prekida konekcije\footnotemark{} \footnotetext{Stvarni domet u otvorenom prostoru je teoretski veći ($\sim$450 m) ako se koriste idealni uvjeti (nema nikakvih prepreka, interferencije, mikrokontroleri postavljeni visoko u zrak i sl.).}.
 
 \begin{table}[h!]
     \centering
@@ -94,17 +94,19 @@ Na sljedećoj \hyperref[tab:tablica]{tablici} prikazana je usporedbe dometa i br
     \label{tab:tablica}
 \end{table}
 
-ESP-NOW protokol je otprilike dva puta brži od WiFi-ja s više manje istim dometom.
+Iako je vrijeme potrebno da stigne poruka kraće kod ESP-NOW protokola, potrebno je uzeti u obzir veličinu paketa koji se šalje kada se razmatra brzina. Naime, ESP-NOW uz poruku još šalje MAC zaglavlje od 24 bajta i još nekoliko parametara od ukupno desetak bajtova što rezultira konačnoj veličini paketa od oko 140 bajtova. WiFi s druge strane koristi MAC zaglavlje (24 bajta), IP zaglavlje (20 bajtova) i dodatne pakete ovisno o protokolu koji se koristi (TCP ili UDP, u radu se koristi TCP što ima veličinu od 20 bajtova) što rezultira konačnoj veličini od oko 170 bajtova. 
+
+Koristeći formulu \( v (bit/s) = \frac{veličinaPaketa}{vrijeme}\), dobijemo da je za ESP-NOW protokol brzina 30067 bit/s, a za WiFi 19154 bit/s.
 
 \subsection{Zašto?}
 
-Najočitija stvar jest to da nam ne treba nekakva WiFi infrastruktura (ruteri) koji sa sobom povlače problem malog dometa kao i potrebne uspostave konekcije (upis SSID-a i lozinke) i održavanje iste, te ne ovisimo o pružatelju usluge. Također, ostvarit ćemo manju potrošnju energije jer se ne mora održavati konekcija.
+Najočitija stvar jest to da nam ne treba nekakva WiFi infrastruktura (ruteri) koji sa sobom povlače problem malog dometa kao i potrebne uspostave konekcije (upis SSID-a i lozinke) i održavanje iste, te ne ovisimo o pružatelju usluge. 
 
-Praktično je za male projekte gdje bi korištenje nekog kompleksnijeg protokola uvelo dodatan nepotreban \textit{overhead} (dodatno vrijeme).
+Praktično je za male projekte gdje bi korištenje nekog kompleksnijeg protokola uvelo dodatan nepotreban \textit{overhead} (dodatno vrijeme) ili otežalo razvoj komplicirajući strukturu sustava.
 
 \subsection{Zašto ne?}
 
-S obzirom na to da su paketi limitirani na samo 250 bajtova, ne možemo koristiti ESP-NOW ako želimo slati video, zvuk i sl. stvari (iako postoje načini kako da ih šaljemo, npr. da video razdvojimo na više paketa ali nije baš praktično). Također, ne možemo dohvaćati podatke s interneta, npr. temperatura mjesta.
+S obzirom na to da su paketi limitirani na samo 250 bajtova, ne možemo koristiti ESP-NOW ako želimo slati video, zvuk i sl. stvari (iako postoje načini kako da ih šaljemo, npr. da video razdvojimo na više paketa ali nije baš praktično). Također, ne možemo dohvaćati podatke s interneta, npr. temperatura mjesta, i isto tako možemo očekivati sporije brzine - iako to u većini slučajeva nije problem ako šaljemo samo npr. očitanja sa senzora.
 
 \section{Primjene ESP-NOW protokola}
 
@@ -419,14 +421,23 @@ Uz pomoć \verb|httpd_req_get_url_query_str| iz zahtjeva izvlačimo parametar ko
 \chapter{Zaključak}
 \label{pog:zakljucak}
 
-TODO
+U seminaru je dan kratki osvrt na ESP-NOW protkol i prikazan je primjer korištenja istog koristeći dva ESP32 mikroupravljača. 
+
+Iz mjerenja se može zakljuličiti kako je ESP-NOW protkol prigodan za korištenje u IoT i sličnim primjenama jer daje slične performanse kao i WiFi protkol ali uz nešto veći domet i jednostavniju strukutru.
+
+Za daljnji rad mogla bi se mjeriti i potrošnja samog protkola kao i usproedba s Bluetooth protokolom. Gledajući sličan rad na istu temu \cite{b2} izmjereno je da ESP-NOW protkol zapravo troši više energije od WiFi protokola. 
 
 
 %--- LITERATURA / REFERENCES ---------------------------------------------------
 
 % Literatura se automatski generira / References are automatically generated
 % Upiši ime BibTeX datoteke bez .bib nastavka / Enter the name of the BibTeX file without .bib extension
-\bibliography{literatura}
+\begin{thebibliography}{00}
+
+\bibitem{b1} ESP-IDF dokumentacija 2025, https://docs.espressif.com/projects/esp-faq/en/latest/index.html
+\bibitem{b2} D. Eridani, A. F. Rochim and F. N. Cesara, "Comparative Performance Study of ESP-NOW, Wi-Fi, Bluetooth Protocols based on Range, Transmission Speed, Latency, Energy Usage and Barrier Resistance," 2021 International Seminar on Application for Technology of Information and Communication (iSemantic), Semarangin, Indonesia, 2021
+
+\end{thebibliography}
 
 
 %--- PRIVITCI / APPENDIX -------------------------------------------------------
@@ -776,4 +787,5 @@ void app_main() {
     ESP_LOGI(TAG, "ESP-NOW Receiver Ready!");
 }
 \end{lstlisting}
+
 \end{document}
